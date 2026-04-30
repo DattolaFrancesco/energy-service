@@ -19,6 +19,7 @@ function Login() {
     })
     .then((data) => {
       localStorage.setItem("token", data.message)
+      navigate('/dashboard')
       console.log(data.message)
     })
     .catch((err) => setErrors(err.message))
