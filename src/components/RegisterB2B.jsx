@@ -6,7 +6,6 @@ function Register() {
   const toastRef = useRef(null);
   const [errors, setErrors] = useState("");
 
-  // stato iniziale riutilizzabile
   const initialState = {
     companyName: "",
     vatNumber: "",
@@ -41,32 +40,54 @@ function Register() {
 
   const fetchTest = () => {
     const payload = {
-      ...formData,
-      vatNumber: Number(formData.vatNumber),
-      annualRevenue: Number(formData.annualRevenue),
-      phoneClient: Number(formData.phoneClient),
-      contactPhone: Number(formData.contactPhone)
+      companyName: formData.companyName?.trim(),
+      vatNumber: formData.vatNumber ? Number(formData.vatNumber) : null,
+      createdAt: formData.createdAt || null,
+      lastContactDate: formData.lastContactDate || null,
+      annualRevenue: formData.annualRevenue ? Number(formData.annualRevenue) : null,
+      certifiedEmail: formData.certifiedEmail?.trim(),
+      phoneClient: formData.phoneClient ? Number(formData.phoneClient) : null,
+      contactEmail: formData.contactEmail?.trim(),
+      contactName: formData.contactName?.trim(),
+      contactSurname: formData.contactSurname?.trim(),
+      contactPhone: formData.contactPhone ? Number(formData.contactPhone) : null,
+      companyLogo: formData.companyLogo?.trim(),
+      typeClient: formData.typeClient,
+
+      legalAddress: {
+        street: formData.legalAddress.street?.trim(),
+        city: formData.legalAddress.city?.trim(),
+        zip: formData.legalAddress.zip?.trim(),
+        country: formData.legalAddress.country?.trim()
+      },
+
+      operationalAddress: {
+        street: formData.operationalAddress.street?.trim(),
+        city: formData.operationalAddress.city?.trim(),
+        zip: formData.operationalAddress.zip?.trim(),
+        country: formData.operationalAddress.country?.trim()
+      }
     };
 
-    fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+    fetch(`${import.meta.env.VITE_API_URL}/auth/registerb2b`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
       .then((res) => {
         if (res.ok) return res.json();
-        return res.json().then(err => { throw new Error(err.message) });
+        return res.json().then(err => {
+          throw new Error(err.message);
+        });
       })
       .then(() => {
         setErrors("");
 
-        // toast
         toastRef.current.classList.add("toast--visible");
         setTimeout(() => {
           toastRef.current.classList.remove("toast--visible");
         }, 4000);
 
-        // reset form → pronta nuova azienda
         setFormData(initialState);
       })
       .catch((err) => setErrors(err.message));
@@ -153,6 +174,7 @@ function Register() {
             value={formData.lastContactDate}
             onChange={update("lastContactDate")}
           />
+
           <input className="reg-input" placeholder="Fatturato annuo"
             value={formData.annualRevenue}
             onChange={update("annualRevenue")} />
@@ -200,6 +222,7 @@ function Register() {
 
           {/* LEGAL */}
           <h3 className="reg-subtitle">Indirizzo Legale</h3>
+
           <input className="reg-input" placeholder="Via"
             value={formData.legalAddress.street}
             onChange={updateAddress("legalAddress", "street")} />
@@ -218,6 +241,7 @@ function Register() {
 
           {/* OPERATIONAL */}
           <h3 className="reg-subtitle">Indirizzo Operativo</h3>
+
           <input className="reg-input" placeholder="Via"
             value={formData.operationalAddress.street}
             onChange={updateAddress("operationalAddress", "street")} />
@@ -234,11 +258,11 @@ function Register() {
             value={formData.operationalAddress.country}
             onChange={updateAddress("operationalAddress", "country")} />
 
-          {/* NUOVA AZIENDA MANUALE */}
+          {/* NUOVA AZIENDA */}
           <button
             type="button"
             className="reg-link"
-            onClick={() => setFormData(initialState)}
+            onClick={() => setFormData({ ...initialState })}
           >
             + Nuova azienda
           </button>
